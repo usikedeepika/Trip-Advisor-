@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/public/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/api/auth/signup").permitAll()  // Signup (no JWT required)
                         .requestMatchers("/api/auth/login").permitAll()  // Login (no JWT required)
                         .anyRequest().authenticated()  // All other endpoints require JWT
