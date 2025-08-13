@@ -121,10 +121,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Allow root and static files
+                        .requestMatchers("/html/**").permitAll()
+
                         .requestMatchers(
-                                "/", "/index.html", "/favicon.ico",
+                                "/", "html/index.html", "/favicon.ico",
                                 "/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.ico"
                         ).permitAll()
+
+
                         // Public API endpoints
                         .requestMatchers("/api/auth/signup", "/api/auth/login").permitAll()
                         // Swagger or public resources

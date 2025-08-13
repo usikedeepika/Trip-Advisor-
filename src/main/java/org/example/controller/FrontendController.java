@@ -10,6 +10,6 @@ public class FrontendController {
     @RequestMapping(value = "/{path:[^\\.]*}")
     public String redirect() {
         // Forward any route that is not a static file to index.html
-        return "forward:/index.html";
+        return "forward:/html/index.html";
     }
 }
