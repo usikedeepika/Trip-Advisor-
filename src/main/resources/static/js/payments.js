@@ -1,5 +1,6 @@
 // Payment handling module
-const PAYMENT_API = 'http://localhost:8081/api/payments/process';
+const PAYMENT_API = 'https://trip-advisor-3.onrender.com/api/payments/process';
+
 
 class PaymentHandler {
     constructor() {

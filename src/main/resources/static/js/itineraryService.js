@@ -1,8 +1,9 @@
 class ItineraryService {
     constructor() {
-        this.baseUrl = 'http://localhost:8081'; 
+        this.baseUrl = 'https://trip-advisor-3.onrender.com';
         this.apiEndpoint = '/api/itineraries';
     }
+
 
     getAuthToken() {
         return localStorage.getItem('JWT_TOKEN');

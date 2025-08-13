@@ -1,5 +1,5 @@
 // Authentication Module
-const AUTH_API = 'http://localhost:8081/api/auth';
+const AUTH_API = '/api/auth';
 const GOOGLE_CLIENT_ID = '238714539124-l2mo199psvn8j0a4j9fan9v960ttdt4t.apps.googleusercontent.com';
 
 const auth = {
@@ -121,7 +121,8 @@ const auth = {
                 
                 console.log('Google authentication successful');
                 alert('Google authentication successful!');
-                window.location.href = 'http://127.0.0.1:5500/html/home.html';
+               window.location.href = '/html/home.html';
+
                 return;
             } else {
                 throw new Error(data.message || 'Google authentication failed');
@@ -209,7 +210,8 @@ const auth = {
     logout() {
         localStorage.removeItem('JWT_TOKEN');
         localStorage.removeItem('CURRENT_USER');
-        window.location.href = 'http://127.0.0.1:5500/html/signin.html';
+        window.location.href = '/html/home.html';
+
     },
 
     isAuthenticated() {
@@ -246,7 +248,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await auth.login(emailOrUsername, password);
                 alert('Login successful!');
-                window.location.href = 'http://127.0.0.1:5500/html/home.html';
+                window.location.href = '/html/home.html';
+
             } catch (error) {
                 alert('Login failed: ' + error.message);
             }
@@ -267,7 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 alert('Account created successfully!');
-                window.location.href = 'http://127.0.0.1:5500/html/home.html';
+               window.location.href = '/html/home.html';
+
             } catch (error) {
                 alert('Signup failed: ' + error.message);
             }
@@ -290,7 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Route protection
     if (window.location.pathname.includes('home.html')) {
         if (!auth.isAuthenticated()) {
-            window.location.href = 'http://127.0.0.1:5500/html/signin.html';
+            window.location.href = '/html/home.html';
+
         }
     }
 });

@@ -1,4 +1,5 @@
-const REVIEW_API = 'http://localhost:8081/api/review';
+const REVIEW_API = 'https://trip-advisor-3.onrender.com/api/review';
+
 
 const reviews = {
     async loadReviews(){
@@ -225,7 +226,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     
     if(!auth.isAuthenticated()) {
         console.log('User not authenticated, redirecting to signin');
-        window.location.href='http://127.0.0.1:5500/html/signin.html';
+       window.location.href = 'https://trip-advisor-3.onrender.com/html/signin.html';
+
         return;
     }
     
