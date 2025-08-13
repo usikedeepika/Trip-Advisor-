@@ -1,711 +1,322 @@
-// Initialize speech recognition
-// function initializeSpeechRecognition() {
-//     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-//         recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-//         recognition.continuous = false;
-//         recognition.interimResults = false;
-//         recognition.lang = 'en-US';
-
-//         recognition.onresult = function(event) {
-//             const transcript = event.results[0][0].transcript;
-//             document.getElementById('voiceResult').value = transcript;
-//             document.getElementById('voiceStatus').textContent = 'Voice captured successfully!';
-//         };
-
-//         recognition.onerror = function(event) {
-//             console.error('Speech recognition error:', event.error);
-//             document.getElementById('voiceStatus').textContent = 'Error: ' + event.error;
-//         };
-
-//         recognition.onend = function() {
-//             isRecording = false;
-//             document.getElementById('voiceIcon').classList.remove('recording');
-//             document.getElementById('voiceBtn').innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
-//         };
-//     }
-// }
-
-// // Search interface management functions
-// function activateAISearch() {
-//     hideAllInterfaces();
-//     document.getElementById('aiSearchInterface').style.display = 'block';
-//     document.getElementById('aiSearchBtn').style.display = 'none';
-// }
-
-// function activateVoiceSearch() {
-//     hideAllInterfaces();
-//     document.getElementById('voiceSearchInterface').style.display = 'block';
-//     document.getElementById('voiceSearchBtn').style.display = 'none';
-// }
-
-// function activateManualSearch() {
-//     hideAllInterfaces();
-//     document.getElementById('manualSearchInterface').style.display = 'block';
-//     document.getElementById('manualSearchBtn').style.display = 'none';
-// }
-
-// function hideAllInterfaces() {
-//     const interfaces = ['aiSearchInterface', 'voiceSearchInterface', 'manualSearchInterface'];
-//     const buttons = ['aiSearchBtn', 'voiceSearchBtn', 'manualSearchBtn'];
-    
-//     interfaces.forEach(id => {
-//         const element = document.getElementById(id);
-//         if (element) element.style.display = 'none';
-//     });
-    
-//     buttons.forEach(id => {
-//         const element = document.getElementById(id);
-//         if (element) element.style.display = 'block';
-//     });
-// }
-
-// // Voice recording functions
-// function toggleVoiceRecording() {
-//     if (!recognition) {
-//         alert('Speech recognition is not supported in your browser.');
-//         return;
-//     }
-
-//     if (isRecording) {
-//         recognition.stop();
-//     } else {
-//         recognition.start();
-//         isRecording = true;
-//         document.getElementById('voiceIcon').classList.add('recording');
-//         document.getElementById('voiceBtn').innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
-//         document.getElementById('voiceStatus').textContent = 'Listening...';
-//     }
-// }
-
-// // Search functions
-// async function performSearch() {
-//     const query = document.getElementById('mainSearch').value;
-//     if (query.trim()) {
-//         showLoadingState();
-//         try {
-//             const aiResponse = await generateTripSuggestions(query);
-//             showResults(`<h4>Search Results for: "${query}"</h4><br>${aiResponse}`);
-//         } catch (error) {
-//             showResults(`<h4>Search Results for: "${query}"</h4><br><p>Here are some general suggestions for your trip...</p>`);
-//         }
-//     }
-// }
-
-// async function generateAISuggestions() {
-//     const prompt = document.getElementById('aiPrompt').value;
-//     if (prompt.trim()) {
-//         showLoadingState();
-//         try {
-//             const aiResponse = await generateTripSuggestions(prompt);
-//             showResults(`<h4>AI Trip Analysis</h4><br><p><strong>Your Request:</strong> "${prompt}"</p><br>${aiResponse}`);
-//         } catch (error) {
-//             showResults(`<h4>AI Trip Analysis</h4><br><p><strong>Your Request:</strong> "${prompt}"</p><br><p>Based on your preferences, here are some personalized suggestions...</p>`);
-//         }
-//     }
-// }
-
-// async function performManualSearch() {
-//     const destination = document.getElementById('destination').value;
-//     const duration = document.getElementById('duration').value;
-//     const budget = document.getElementById('budget').value;
-//     const style = document.getElementById('travelStyle').value;
-
-//     if (destination.trim()) {
-//         showLoadingState();
-//         const searchQuery = `Destination: ${destination}, Duration: ${duration} days, Budget: $${budget}, Style: ${style}`;
-        
-//         try {
-//             const aiResponse = await generateTripSuggestions(searchQuery);
-//             showResults(`<h4>Manual Search Results</h4><br><p><strong>Search Criteria:</strong> ${searchQuery}</p><br>${aiResponse}`);
-//         } catch (error) {
-//             showResults(`<h4>Manual Search Results</h4><br><p><strong>Search Criteria:</strong> ${searchQuery}</p><br><p>Here are some suggestions based on your criteria...</p>`);
-//         }
-//     }
-// }
-
-// // OpenAI API integration
-// async function generateTripSuggestions(userInput) {
-//     try {
-//         // Create a focused prompt for essential trip information
-//         const systemPrompt = `You are a travel advisor. Provide a concise response with ONLY the following information in this exact format:
-
-//         DESTINATION: [Main destination name]
-//         DURATION: [Suggested trip duration]
-//         BUDGET: [Estimated budget range]
-//         BEST_TIME: [Best time to visit]
-//         TOP_ATTRACTIONS: [List 3-4 main attractions, separated by semicolons]
-//         ACCOMMODATION: [Brief accommodation recommendation]
-//         LOCAL_FOOD: [2-3 must-try local dishes, separated by semicolons]
-//         TRAVEL_TIP: [One important travel tip]
-
-//         Keep each section brief and specific. Do not include extra formatting or explanations.`;
-
-//         const userPrompt = `Please provide essential travel information for: ${userInput}`;
-
-//         const response = await callGitHubAI(`${systemPrompt}\n\nUser Request: ${userPrompt}`);
-//         return formatTripResponse(response);
-//     } catch (error) {
-//         console.error('Error generating trip suggestions:', error);
-//         throw error;
-//     }
-// }
-
-// // Format AI response into a structured table
-// async function formatTripResponse(response) {
-//     try {
-//         const lines = response.split('\n');
-//         const tripData = {};
-//         const authToken = localStorage.getItem("JWT_TOKEN");
-//         const currentUser = localStorage.getItem('CURRENT_USER');
-//         const user = JSON.parse(currentUser);
-//         lines.forEach(line => {
-//             if (line.includes(':')) {
-//                 const [key, value] = line.split(':');
-//                 if (key && value) {
-//                     tripData[key.trim()] = value.trim();
-//                 }
-//             }
-//         });
-//         const backendResponse = await fetch(`${AUTH_ITINERARY_PATH}?userId=${encodeURIComponent(user.id)}`, {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json',
-//                     'Authorization': `Bearer ${authToken}`,
-//                     'userName': user.userName                
-//              },
-//             body: JSON.stringify({
-//                 destination: tripData.DESTINATION,
-//                 fullItinerary: response,
-//                 budgetRange: tripData.BUDGET
-//             })
-//         });
-//         if(!backendResponse.ok)
-//         {
-//             console.log("Failed to update backend")
-//         }
-//         return `
-//             <div class="trip-info-container">
-//                 <table class="table table-striped table-hover">
-//                     <thead class="table-dark">
-//                         <tr>
-//                             <th colspan="2" class="text-center">✈️ Trip Planning Information</th>
-//                         </tr>
-//                     </thead>
-//                     <tbody>
-//                         <tr>
-//                             <td><strong>🎯 Destination</strong></td>
-//                             <td>${tripData.DESTINATION || 'N/A'}</td>
-//                         </tr>
-//                         <tr>
-//                             <td><strong>⏱️ Duration</strong></td>
-//                             <td>${tripData.DURATION || 'N/A'}</td>
-//                         </tr>
-//                         <tr>
-//                             <td><strong>💰 Budget</strong></td>
-//                             <td>${tripData.BUDGET || 'N/A'}</td>
-//                         </tr>
-//                         <tr>
-//                             <td><strong>🌤️ Best Time</strong></td>
-//                             <td>${tripData.BEST_TIME || 'N/A'}</td>
-//                         </tr>
-//                         <tr>
-//                             <td><strong>🏛️ Top Attractions</strong></td>
-//                             <td>${formatList(tripData.TOP_ATTRACTIONS)}</td>
-//                         </tr>
-//                         <tr>
-//                             <td><strong>🏨 Accommodation</strong></td>
-//                             <td>${tripData.ACCOMMODATION || 'N/A'}</td>
-//                         </tr>
-//                         <tr>
-//                             <td><strong>🍽️ Local Food</strong></td>
-//                             <td>${formatList(tripData.LOCAL_FOOD)}</td>
-//                         </tr>
-//                         <tr>
-//                             <td><strong>💡 Travel Tip</strong></td>
-//                             <td>${tripData.TRAVEL_TIP || 'N/A'}</td>
-//                         </tr>
-//                     </tbody>
-//                 </table>
-//             </div>
-//         `;
-//     } catch (error) {
-//         console.error('Error formatting response:', error);
-//         return `<div class="alert alert-info">${response}</div>`;
-//     }
-// }
-
-// // Helper function to format semicolon-separated lists
-// function formatList(text) {
-//     if (!text) return 'N/A';
-//     return text.split(';').map(item => `• ${item.trim()}`).join('<br>');
-// }
-
-// // UI helper functions
-// function showLoadingState() {
-//     const resultsContent = document.getElementById('resultsContent');
-//     resultsContent.innerHTML = `
-//         <div class="text-center">
-//             <div class="spinner-border text-primary" role="status">
-//                 <span class="visually-hidden">Loading...</span>
-//             </div>
-//             <p class="mt-2">Generating personalized travel suggestions...</p>
-//         </div>
-//     `;
-//     document.getElementById('searchResults').style.display = 'block';
-//     document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth' });
-// }
-
-// function showResults(content) {
-//     document.getElementById('resultsContent').innerHTML = content;
-//     document.getElementById('searchResults').style.display = 'block';
-//     document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth' });
-// }
-
-// // Initialize everything when the page loads
-// document.addEventListener('DOMContentLoaded', function() {
-//     initializeSpeechRecognition();
-//     console.log('Travel Itinerary App initialized successfully!');
-//     initCarousel();
-// });
-
-// // Initialize carousel
-// function initCarousel() {
-//     createDots();
-//     startAutoSlide();
-//     updateCarousel();
-// }
-
-// // Create navigation dots
-// function createDots() {
-//     const dotsContainer = document.getElementById('carouselDots');
-//     for (let i = 0; i < totalSlides; i++) {
-//         const dot = document.createElement('div');
-//         dot.className = 'carousel-dot';
-//         dot.onclick = () => goToSlide(i);
-//         dotsContainer.appendChild(dot);
-//     }
-// }
-
-// // Move carousel
-// function moveCarousel(direction) {
-//     currentSlide += direction;
-//     if (currentSlide >= totalSlides) {
-//         currentSlide = 0;
-//     } else if (currentSlide < 0) {
-//         currentSlide = totalSlides - 1;
-//     }
-//     updateCarousel();
-//     resetAutoSlide();
-// }
-
-// // Go to specific slide
-// function goToSlide(slideIndex) {
-//     currentSlide = slideIndex;
-//     updateCarousel();
-//     resetAutoSlide();
-// }
-
-// // Update carousel display
-// function updateCarousel() {
-//     const track = document.getElementById('countryCarousel');
-//     const slideWidth = 320; // 300px width + 20px gap
-//     const offset = -currentSlide * slideWidth;
-//     track.style.transform = `translateX(${offset}px)`;
-    
-//     // Update dots
-//     const dots = document.querySelectorAll('.carousel-dot');
-//     dots.forEach((dot, index) => {
-//         dot.classList.toggle('active', index === currentSlide);
-//     });
-// }
-
-// // Start auto-sliding
-// function startAutoSlide() {
-//     autoSlideInterval = setInterval(() => {
-//         moveCarousel(1);
-//     }, 3000); // Change slide every 3 seconds
-// }
-
-// // Export functions for global access (if needed)
-// window.travelApp = {
-//     performSearch,
-//     generateAISuggestions,
-//     performManualSearch,
-//     toggleVoiceRecording,
-//     activateAISearch,
-//     activateVoiceSearch,
-//     activateManualSearch
-// };
-
-
-// Global variables
-let isRecording = false;
-let recognition = null;
-const AUTH_ITINERARY_PATH = 'http://localhost:8081/api/itineraries';
-
-// Carousel functionality
-let currentSlide = 0;
-let autoSlideInterval;
-const slides = document.querySelectorAll('.carousel-slide');
-const totalSlides = slides.length;
-
-// Initialize speech recognition
-function initializeSpeechRecognition() {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = 'en-US';
-
-        recognition.onresult = function(event) {
-            const transcript = event.results[0][0].transcript;
-            document.getElementById('voiceResult').value = transcript;
-            document.getElementById('voiceStatus').textContent = 'Voice captured successfully!';
-            performVoiceSearch();
-        };  
-
-        recognition.onerror = function(event) {
-            console.error('Speech recognition error:', event.error);
-            document.getElementById('voiceStatus').textContent = 'Error: ' + event.error;
-        };
-
-        recognition.onend = function() {
-            isRecording = false;
-            document.getElementById('voiceIcon').classList.remove('recording');
-            document.getElementById('voiceBtn').innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
-        };
+// ==============================
+// AUTH HELPER (assumes auth object exists)
+// ==============================
+const auth = {
+    getToken() {
+        return localStorage.getItem('JWT_TOKEN');
+    },
+    getCurrentUser() {
+        const user = localStorage.getItem('CURRENT_USER');
+        return user ? JSON.parse(user) : null;
+    },
+    isAuthenticated() {
+        return !!this.getToken() && !!this.getCurrentUser();
+    },
+    async request(url, options = {}) {
+        return fetch(url, options);
     }
-}
+};
 
-// Search interface management functions
-function activateAISearch() {
-    hideAllInterfaces();
-    document.getElementById('aiSearchInterface').style.display = 'block';
-    document.getElementById('aiSearchBtn').style.display = 'none';
-}
-
-function activateVoiceSearch() {
-    hideAllInterfaces();
-    document.getElementById('voiceSearchInterface').style.display = 'block';
-    document.getElementById('voiceSearchBtn').style.display = 'none';
-}
-
-function activateManualSearch() {
-    hideAllInterfaces();
-    document.getElementById('manualSearchInterface').style.display = 'block';
-    document.getElementById('manualSearchBtn').style.display = 'none';
-}
-
-function hideAllInterfaces() {
-    const interfaces = ['aiSearchInterface', 'voiceSearchInterface', 'manualSearchInterface'];
-    const buttons = ['aiSearchBtn', 'voiceSearchBtn', 'manualSearchBtn'];
-    
-    interfaces.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.style.display = 'none';
-    });
-    
-    buttons.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.style.display = 'block';
-    });
-}
-
-// Voice recording functions
-function toggleVoiceRecording() {
-    if (!recognition) {
-        alert('Speech recognition is not supported in your browser.');
-        return;
+// ==============================
+// ITINERARY MODULE
+// ==============================
+class ItineraryService {
+    constructor() {
+        this.apiEndpoint = '/api/itineraries';
     }
 
-    if (isRecording) {
-        recognition.stop();
-    } else {
-        recognition.start();
-        isRecording = true;
-        document.getElementById('voiceIcon').classList.add('recording');
-        document.getElementById('voiceBtn').innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
-        document.getElementById('voiceStatus').textContent = 'Listening...';
-    }
-}
+    async saveItinerary(itineraryData, userId) {
+        const token = auth.getToken();
+        if (!token) throw new Error('Authentication required');
+        if (!userId) throw new Error('User ID required');
 
-// Search functions
+        const url = `${this.apiEndpoint}?userId=${encodeURIComponent(userId)}`;
+        const body = JSON.stringify({
+            destination: itineraryData.destination,
+            fullItinerary: itineraryData.fullItinerary,
+            startDate: itineraryData.startDate || null,
+            endDate: itineraryData.endDate || null,
+            numberOfDays: itineraryData.numberOfDays || null,
+            budgetRange: itineraryData.budgetRange || null,
+            travelStyle: itineraryData.travelStyle || null
+        });
 
-async function performVoiceSearch() {
-    const query = document.getElementById('voiceResult').value;
-    if (query.trim()) {
-        showLoadingState();
-        try {
-            const aiResponse = await generateTripSuggestions(query);
-            showResults(`<h4>Search Results for: "${query}"</h4><br>${aiResponse}`);
-        } catch (error) {
-            showResults(`<h4>Search Results for: "${query}"</h4><br><p>Here are some general suggestions for your trip...</p>`);
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
         }
+
+        return response.json();
     }
-}
 
+    async getUserItineraries(userId) {
+        const token = auth.getToken();
+        const user = auth.getCurrentUser();
+        if (!token || !user) throw new Error('Authentication required');
+        if (!userId) throw new Error('User ID required');
 
-async function performSearch() {
-    const query = document.getElementById('mainSearch').value;
-    if (query.trim()) {
-        showLoadingState();
-        try {
-            const aiResponse = await generateTripSuggestions(query);
-            showResults(`<h4>Search Results for: "${query}"</h4><br>${aiResponse}`);
-        } catch (error) {
-            showResults(`<h4>Search Results for: "${query}"</h4><br><p>Here are some general suggestions for your trip...</p>`);
+        const url = `${this.apiEndpoint}?userId=${encodeURIComponent(userId)}`;
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}`, 'userName': user.userName }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
         }
-    }
-}
 
-async function generateAISuggestions() {
-    const prompt = document.getElementById('aiPrompt').value;
-    if (prompt.trim()) {
-        showLoadingState();
-        try {
-            const aiResponse = await generateTripSuggestions(prompt);
-            showResults(`<h4>AI Trip Analysis</h4><br><p><strong>Your Request:</strong> "${prompt}"</p><br>${aiResponse}`);
-        } catch (error) {
-            showResults(`<h4>AI Trip Analysis</h4><br><p><strong>Your Request:</strong> "${prompt}"</p><br><p>Based on your preferences, here are some personalized suggestions...</p>`);
+        return response.json();
+    }
+
+    async searchItineraries(userId, searchTerm) {
+        const token = auth.getToken();
+        const user = auth.getCurrentUser();
+        if (!token || !user) throw new Error('Authentication required');
+        if (!userId) throw new Error('User ID required');
+        if (!searchTerm || searchTerm.trim() === '') throw new Error('Search term is required');
+
+        const url = `/api/itineraries/search?userId=${encodeURIComponent(userId)}&searchTerm=${encodeURIComponent(searchTerm.trim())}`;
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}`, 'userName': user.userName }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
         }
+
+        return response.json();
     }
 }
 
-async function performManualSearch() {
-    const destination = document.getElementById('destination').value;
-    const duration = document.getElementById('duration').value;
-    const budget = document.getElementById('budget').value;
-    const style = document.getElementById('travelStyle').value;
+const itineraryService = new ItineraryService();
 
-    if (destination.trim()) {
-        showLoadingState();
-        const searchQuery = `Destination: ${destination}, Duration: ${duration} days, Budget: $${budget}, Style: ${style}`;
-        
-        try {
-            const aiResponse = await generateTripSuggestions(searchQuery);
-            showResults(`<h4>Manual Search Results</h4><br><p><strong>Search Criteria:</strong> ${searchQuery}</p><br>${aiResponse}`);
-        } catch (error) {
-            showResults(`<h4>Manual Search Results</h4><br><p><strong>Search Criteria:</strong> ${searchQuery}</p><br><p>Here are some suggestions based on your criteria...</p>`);
-        }
-    }
-}
-
-// OpenAI API integration
-async function generateTripSuggestions(userInput) {
+async function saveUserItinerary(destination, fullItinerary, options = {}) {
     try {
-        // Create a focused prompt for essential trip information
-        const systemPrompt = `You are a travel advisor. Provide a concise response with ONLY the following information in this exact format:
+        const user = auth.getCurrentUser();
+        if (!user) throw new Error('User not logged in');
 
-        DESTINATION: [Main destination name]
-        DURATION: [Suggested trip duration]
-        BUDGET: [Estimated budget range]
-        BEST_TIME: [Best time to visit]
-        TOP_ATTRACTIONS: [List 3-4 main attractions, separated by semicolons]
-        ACCOMMODATION: [Brief accommodation recommendation]
-        LOCAL_FOOD: [2-3 must-try local dishes, separated by semicolons]
-        TRAVEL_TIP: [One important travel tip]
+        const itineraryData = {
+            destination,
+            fullItinerary,
+            startDate: options.startDate,
+            endDate: options.endDate,
+            numberOfDays: options.numberOfDays,
+            budgetRange: options.budgetRange,
+            travelStyle: options.travelStyle
+        };
 
-        Keep each section brief and specific. Do not include extra formatting or explanations.`;
-
-        const userPrompt = `Please provide essential travel information for: ${userInput}`;
-
-        const response = await callGitHubAI(`${systemPrompt}\n\nUser Request: ${userPrompt}`);
-        return formatTripResponse(response);
+        const result = await itineraryService.saveItinerary(itineraryData, user.id);
+        showNotification('Itinerary saved!', 'success');
+        return result;
     } catch (error) {
-        console.error('Error generating trip suggestions:', error);
+        console.error(error);
+        showNotification(`Failed to save itinerary: ${error.message}`, 'error');
         throw error;
     }
 }
 
-// Format AI response into a structured table
-async function formatTripResponse(response) {
-    try {
-        const lines = response.split('\n');
-        const tripData = {};
-        const authToken = localStorage.getItem("JWT_TOKEN");
-        const currentUser = localStorage.getItem('CURRENT_USER');
-        const user = JSON.parse(currentUser);
-        lines.forEach(line => {
-            if (line.includes(':')) {
-                const [key, value] = line.split(':');
-                if (key && value) {
-                    tripData[key.trim()] = value.trim();
-                }
-            }
-        });
-        const backendResponse = await fetch(`${AUTH_ITINERARY_PATH}?userId=${encodeURIComponent(user.id)}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`,
-                    'userName': user.userName                
-             },
-            body: JSON.stringify({
-                destination: tripData.DESTINATION,
-                fullItinerary: response,
-                budgetRange: tripData.BUDGET
-            })
-        });
-        if(!backendResponse.ok)
-        {
-            console.log("Failed to update backend")
-        }
-        return `
-            <div class="trip-info-container">
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th colspan="2" class="text-center">✈️ Trip Planning Information</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>🎯 Destination</strong></td>
-                            <td>${tripData.DESTINATION || 'N/A'}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>⏱️ Duration</strong></td>
-                            <td>${tripData.DURATION || 'N/A'}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>💰 Budget</strong></td>
-                            <td>${tripData.BUDGET || 'N/A'}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>🌤️ Best Time</strong></td>
-                            <td>${tripData.BEST_TIME || 'N/A'}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>🏛️ Top Attractions</strong></td>
-                            <td>${formatList(tripData.TOP_ATTRACTIONS)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>🏨 Accommodation</strong></td>
-                            <td>${tripData.ACCOMMODATION || 'N/A'}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>🍽️ Local Food</strong></td>
-                            <td>${formatList(tripData.LOCAL_FOOD)}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>💡 Travel Tip</strong></td>
-                            <td>${tripData.TRAVEL_TIP || 'N/A'}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        `;
-    } catch (error) {
-        console.error('Error formatting response:', error);
-        return `<div class="alert alert-info">${response}</div>`;
-    }
-}
-
-// Helper function to format semicolon-separated lists
-function formatList(text) {
-    if (!text) return 'N/A';
-    return text.split(';').map(item => `• ${item.trim()}`).join('<br>');
-}
-
-// UI helper functions
-function showLoadingState() {
-    const resultsContent = document.getElementById('resultsContent');
-    resultsContent.innerHTML = `
-        <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Generating personalized travel suggestions...</p>
-        </div>
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; padding: 12px 20px;
+        border-radius: 4px; color: white; font-weight: bold; z-index: 1000;
+        opacity: 0; transition: opacity 0.3s ease;
+        background-color: ${type==='success'?'#4CAF50':type==='error'?'#f44336':'#2196F3'};
     `;
-    document.getElementById('searchResults').style.display = 'block';
-    document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth' });
+    document.body.appendChild(notification);
+    setTimeout(()=> notification.style.opacity='1', 100);
+    setTimeout(()=> { notification.style.opacity='0'; setTimeout(()=>document.body.removeChild(notification),300)}, 3000);
 }
 
-function showResults(content) {
-    document.getElementById('resultsContent').innerHTML = content;
-    document.getElementById('searchResults').style.display = 'block';
-    document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth' });
+// ==============================
+// PAYMENT MODULE
+// ==============================
+class PaymentHandler {
+    constructor() {
+        this.selectedPaymentMethod = 'pm_card_visa';
+        this.selectedPlan = 'PRO';
+        this.apiEndpoint = '/api/payments/process';
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.updateSummary();
+    }
+
+    setupEventListeners() {
+        document.querySelectorAll('.payment-method-card').forEach(card =>
+            card.addEventListener('click', e => this.selectPaymentMethod(e.currentTarget))
+        );
+        document.querySelectorAll('.subscription-plan-card').forEach(card =>
+            card.addEventListener('click', e => this.selectSubscriptionPlan(e.currentTarget))
+        );
+        const currencyEl = document.getElementById('currency');
+        if(currencyEl) currencyEl.addEventListener('change', ()=>this.updateSummary());
+        const form = document.getElementById('paymentForm');
+        if(form) form.addEventListener('submit', e => { e.preventDefault(); this.processPayment(); });
+    }
+
+    selectPaymentMethod(card){
+        document.querySelectorAll('.payment-method-card').forEach(c=>{c.classList.remove('selected'); c.querySelector('.fa-check-circle')?.style.display='none'});
+        card.classList.add('selected');
+        let checkIcon = card.querySelector('.fa-check-circle');
+        if(!checkIcon){
+            checkIcon = document.createElement('i');
+            checkIcon.className = 'fas fa-check-circle text-success ms-auto';
+            card.querySelector('.d-flex')?.appendChild(checkIcon);
+        }
+        checkIcon.style.display='inline';
+        this.selectedPaymentMethod = card.dataset.method;
+        document.getElementById('paymentMethodId').value = this.selectedPaymentMethod;
+        this.updateSummary();
+    }
+
+    selectSubscriptionPlan(card){
+        document.querySelectorAll('.subscription-plan-card').forEach(c=>c.classList.remove('selected'));
+        card.classList.add('selected');
+        this.selectedPlan = card.dataset.plan;
+        document.getElementById('selectedPlan').value = this.selectedPlan;
+        document.getElementById('amount').value = parseFloat(card.dataset.price);
+        this.updateSummary();
+    }
+
+    updateSummary(){
+        const amount = parseFloat(document.getElementById('amount')?.value)||0;
+        const currency = document.getElementById('currency')?.value || 'usd';
+        document.getElementById('summaryAmount').textContent = this.formatCurrency(amount, currency);
+        document.getElementById('summaryCurrency').textContent = currency.toUpperCase();
+        document.getElementById('summaryMethod').textContent = this.getPaymentMethodText();
+        document.getElementById('summaryPlan').textContent = this.selectedPlan;
+        document.getElementById('summaryTotal').textContent = this.formatCurrency(amount, currency);
+    }
+
+    getPaymentMethodText(){
+        return {'pm_card_visa':'Visa','pm_card_mastercard':'Mastercard','pm_card_amex':'AmEx'}[this.selectedPaymentMethod]||'Card';
+    }
+
+    formatCurrency(amount,currency){
+        return {'usd':'$','eur':'€','gbp':'£','cad':'C$'}[currency]||'$'+amount.toFixed(2);
+    }
+
+    async processPayment(){
+        const form = document.getElementById('paymentForm');
+        if(!form.checkValidity()){form.classList.add('was-validated'); return;}
+        const amount=parseFloat(document.getElementById('amount')?.value);
+        const currency=document.getElementById('currency')?.value||'usd';
+        if(!amount||amount<=0){this.showError('Select a plan'); return;}
+        const token=auth.getToken(), user=auth.getCurrentUser();
+        if(!token||!user){this.showError('Authentication required'); window.location.href='signin.html'; return;}
+        this.showProcessingOverlay();
+        try{
+            const paymentData={amount,currency,paymentMethodId:this.selectedPaymentMethod,paymentType:"gateway",subscriptionPlan:this.selectedPlan};
+            const res = await fetch(this.apiEndpoint,{method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'userName':user.userName}, body:JSON.stringify(paymentData)});
+            const result = await res.json();
+            if(res.ok){
+                user.membershipPlan=this.selectedPlan; localStorage.setItem('CURRENT_USER',JSON.stringify(user));
+                this.showSuccess(result,paymentData);
+                setTimeout(()=>window.location.href='home.html',3000);
+            }else throw new Error(result.message||'Payment failed');
+        }catch(e){console.error(e); this.showError(e.message);} finally{this.hideProcessingOverlay();}
+    }
+
+    showProcessingOverlay(){document.getElementById('processingOverlay').style.display='flex';}
+    hideProcessingOverlay(){document.getElementById('processingOverlay').style.display='none';}
+
+    showSuccess(result,paymentData){
+        const div=document.getElementById('paymentResult');
+        div.innerHTML=`
+            <div class="alert alert-success shadow-sm">
+                <h4>Payment Successful!</h4>
+                <p>Transaction ID: ${result.transactionId||result.id||'N/A'}</p>
+                <p>Amount: ${this.formatCurrency(paymentData.amount,paymentData.currency)} ${paymentData.currency.toUpperCase()}</p>
+                <p>Plan: ${this.selectedPlan}</p>
+            </div>`;
+        div.style.display='block'; div.scrollIntoView({behavior:'smooth'});
+    }
+
+    showError(msg){const div=document.getElementById('paymentResult'); div.innerHTML=`<div class="alert alert-danger">${msg}</div>`; div.style.display='block'; div.scrollIntoView({behavior:'smooth'});}
 }
 
-// Initialize everything when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initializeSpeechRecognition();
-    console.log('Travel Itinerary App initialized successfully!');
-    initCarousel();
+let paymentHandler;
+document.addEventListener('DOMContentLoaded',()=>{paymentHandler=new PaymentHandler();});
+window.paymentHandler = paymentHandler;
+
+// ==============================
+// REVIEW MODULE
+// ==============================
+const REVIEW_API = '/api/review';
+
+const reviews = {
+    async loadReviews(){
+        try{
+            const user=auth.getCurrentUser(), token=auth.getToken();
+            if(!token) throw new Error('Authentication required');
+            const res=await auth.request(REVIEW_API,{method:'GET',headers:{'Authorization':`Bearer ${token}`,'username':user.userName}});
+            if(!res.ok) throw new Error(`Failed to load reviews: ${res.status}`);
+            const data=await res.json(); this.displayReviews(data.data);
+        }catch(e){console.error(e); this.displayError(e.message);}
+    },
+    async submitReview(reviewData){
+        try{
+            const user=auth.getCurrentUser(), token=auth.getToken();
+            if(!token) throw new Error('Authentication required');
+            const res=await auth.request(REVIEW_API,{method:'POST', headers:{'Authorization':`Bearer ${token}`,'username':user.userName}, body:JSON.stringify(reviewData)});
+            if(!res.ok){const d=await res.json(); throw new Error(d.message||'Submit failed');}
+            const data=await res.json(); this.showSuccess('Review saved');
+            document.getElementById('reviewForm')?.reset();
+            document.getElementById('rating')&&(document.getElementById('rating').value='0'); this.updateStarRating(0);
+            this.loadReviews(); return data;
+        }catch(e){console.error(e); throw e;}
+    },
+    displayReviews(reviewsData){
+        const list=document.getElementById('reviewsList');
+        if(!list)return;
+        if(!reviewsData||reviewsData.length===0){list.innerHTML=`<div class="text-center py-5"><h5>No reviews yet</h5></div>`; return;}
+        list.innerHTML=reviewsData.map(r=>`<div class="card review-card"><h5>${r.title||'Review'}</h5><p>${r.comment||r.review||''}</p><small>${r.reviewerName||r.userName||'Anonymous'} | ${this.formatDate(r.createdAt||r.date)}</small></div>`).join('');
+    },
+    displayError(msg){const list=document.getElementById('reviewsList'); if(list) list.innerHTML=`<div class="alert alert-danger">${msg}</div>`;},
+    showSuccess(msg){const a=document.createElement('div'); a.className='alert alert-success alert-dismissible fade show position-fixed'; a.style.cssText='top:20px;right:20px;z-index:1055;min-width:300px'; a.innerHTML=`${msg}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`; document.body.appendChild(a); setTimeout(()=>a.parentNode&&a.remove(),3000);},
+    generateStars(r){let s=''; for(let i=0;i<Math.floor(r);i++) s+='<i class="fas fa-star"></i>'; if(r%1!==0)s+='<i class="fas fa-star-half-alt"></i>'; for(let i=0;i<5-Math.ceil(r);i++) s+='<i class="far fa-star"></i>'; return s;},
+    formatDate(d){if(!d)return'Unknown Date'; try{return new Date(d).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});}catch(e){return'Unknown Date';}},
+    updateStarRating(r){document.querySelectorAll('.star-rating .star').forEach((s,i)=>i<r?s.classList.add('active'):s.classList.remove('active'));}
+};
+
+document.addEventListener('DOMContentLoaded',()=>{
+    if(!auth.isAuthenticated()){window.location.href='/html/signin.html'; return;}
+    reviews.loadReviews();
+    const stars=document.querySelectorAll('.star-rating .star'), ratingInput=document.getElementById('rating');
+    stars.forEach(s=>{s.addEventListener('click',()=>{const r=parseInt(s.getAttribute('data-rating')); ratingInput.value=r; reviews.updateStarRating(r);}); s.addEventListener('mouseover',()=>{reviews.updateStarRating(parseInt(s.getAttribute('data-rating')));});});
+    document.getElementById('starRating')?.addEventListener('mouseleave',()=>{reviews.updateStarRating(parseInt(ratingInput.value)||0);});
+    document.getElementById('reviewForm')?.addEventListener('submit', async e=>{
+        e.preventDefault();
+        const formData=new FormData(e.target);
+        const rating=parseInt(document.getElementById('rating')?.value||'0');
+        if(rating===0){alert('Select rating'); return;}
+        const reviewData={
+            destination: formData.get('destination')||'',
+            title: formData.get('title')||'',
+            comment: formData.get('comment')||'',
+            rating: rating
+        };
+        const btn=e.target.querySelector('button[type="submit"]');
+        if(btn){const t=btn.innerHTML; btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin me-2"></i> Submitting...';
+            try{await reviews.submitReview(reviewData);}catch(e){alert('Failed to submit review');}finally{btn.disabled=false; btn.innerHTML=t;}
+        }
+    });
 });
 
-// Initialize carousel
-function initCarousel() {
-    createDots();
-    startAutoSlide();
-    updateCarousel();
-}
-
-// Create navigation dots
-function createDots() {
-    const dotsContainer = document.getElementById('carouselDots');
-    for (let i = 0; i < totalSlides; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'carousel-dot';
-        dot.onclick = () => goToSlide(i);
-        dotsContainer.appendChild(dot);
-    }
-}
-
-// Move carousel
-function moveCarousel(direction) {
-    currentSlide += direction;
-    if (currentSlide >= totalSlides) {
-        currentSlide = 0;
-    } else if (currentSlide < 0) {
-        currentSlide = totalSlides - 1;
-    }
-    updateCarousel();
-    resetAutoSlide();
-}
-
-// Go to specific slide
-function goToSlide(slideIndex) {
-    currentSlide = slideIndex;
-    updateCarousel();
-    resetAutoSlide();
-}
-
-// Update carousel display
-function updateCarousel() {
-    const track = document.getElementById('countryCarousel');
-    const slideWidth = 320; // 300px width + 20px gap
-    const offset = -currentSlide * slideWidth;
-    track.style.transform = `translateX(${offset}px)`;
-    
-    // Update dots
-    const dots = document.querySelectorAll('.carousel-dot');
-    dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentSlide);
-    });
-}
-
-// Start auto-sliding
-function startAutoSlide() {
-    autoSlideInterval = setInterval(() => {
-        moveCarousel(1);
-    }, 3000); // Change slide every 3 seconds
-}
-
-// Reset auto-slide timer
-function resetAutoSlide() {
-    if (autoSlideInterval) {
-        clearInterval(autoSlideInterval);
-        startAutoSlide();
-    }
-}
-
-// Export functions for global access (if needed)
-window.travelApp = {
-    performSearch,
-    generateAISuggestions,
-    performManualSearch,
-    toggleVoiceRecording,
-    activateAISearch,
-    activateVoiceSearch,
-    activateManualSearch
-};
+window.reviews = reviews;
+window.itineraryService = itineraryService;
+window.saveUserItinerary = saveUserItinerary;
