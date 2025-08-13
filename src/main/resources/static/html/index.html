@@ -16,23 +16,34 @@
     }
 
     /* Icon box styling */
-    .icon-box {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: auto;
-      transition: background 0.3s ease;
-    }
-    .icon-box i {
-      color: #00796b;
-    }
-    .icon-box:hover {
-      background: #b2dfdb;
-    }
+   /* Hero Section */
+.hero-section {
+  /* Updated gradient to match your uploaded image */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 60px 20px;
+  border-radius: 15px;
+  color: white; /* Ensures text is visible on darker gradient */
+}
+
+/* Optional: update icon box color to match theme */
+.icon-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2); /* semi-transparent white */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  transition: background 0.3s ease;
+}
+.icon-box i {
+  color: white;
+}
+.icon-box:hover {
+  background: rgba(255,255,255,0.4);
+}
+
 
     /* Card hover effect */
     .card {
