@@ -52,12 +52,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Allow all static files under /html/ and other resources
-                        .requestMatchers(
-                                "/html/**",   // your index.html folder
-                                "/css/**",    // all CSS files
-                                "/js/**",     // all JS files
-                                "/images/**"  // all images and subfolders
-                        ).permitAll()
+                        .requestMatchers("/", "/html/**", "/css/**", "/js/**", "/images/**","/images1/**").permitAll()
+
 
 
                         // Public API endpoints
