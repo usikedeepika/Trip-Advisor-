@@ -1,5 +1,5 @@
 // Authentication Module
-const AUTH_API = 'https://trip-advisor-3.onrender.com/api/auth'; // Use your Render app URL
+const AUTH_API = '/api/auth'; // Use your Render app URL
 const GOOGLE_CLIENT_ID = '238714539124-l2mo199psvn8j0a4j9fan9v960ttdt4t.apps.googleusercontent.com';
 
 const auth = {
