@@ -6,7 +6,7 @@ function decryptToken(encrypted) {
     return atob(encrypted).split('').map(char => String.fromCharCode(char.charCodeAt(0) - 5)).join('');
 }
 
-const ENCRYPTED_GITHUB_TOKEN = "bG11ZFRnVEY9a1FwcWd5On19VU83NUhebnF1TkZSOEZTTDg3a3hXcg==";
+const ENCRYPTED_GITHUB_TOKEN = "bG11ZFNaX31zPj5HT2dOb0ZOcHpqVn89fFxQVTxTUDVTNTh+S1pSVw==";
 const ENDPOINT = "https://models.github.ai/inference";
 const MODEL = "openai/gpt-4.1";
 
