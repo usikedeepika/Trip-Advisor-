@@ -7,6 +7,7 @@ import org.example.dto.LoginRequest;
 import org.example.dto.SignUpRequest;
 import org.example.dto.UserProfileRequest;
 import org.example.model.entity.User;
+import org.example.model.entity.Users;
 import org.example.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class UserService {
         // Hash the password before saving
         String hashedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 
-        User user = User.builder()
+        Users user = Users.builder()
                 .username(signUpRequest.getUsername())
                 .email(signUpRequest.getEmail())
                 .password(hashedPassword)
@@ -38,7 +39,7 @@ public class UserService {
                 .phoneNumber(signUpRequest.getPhoneNumber())
                 .enabled(true).build();
 
-        User savedUser = userRepository.save(user);
+        Users savedUser = userRepository.save(user);
 
         // Generate JWT token
         String token = "";
@@ -62,7 +63,7 @@ public class UserService {
             throw new BadRequestException("Username or email is required");
         }
 
-        User user = null;
+        Users user = null;
 
         // Try to find user by username first, then by email
         if (loginRequest.getUserName() != null && !loginRequest.getUserName().trim().isEmpty()) {
@@ -95,7 +96,7 @@ public class UserService {
         );
     }
 
-    public User getUserByUserName(UserProfileRequest userProfileRequest) {
+    public Users getUserByUserName(UserProfileRequest userProfileRequest) {
         return userRepository.findByUsername(userProfileRequest.getUserName()).orElse(null);
     }
 
