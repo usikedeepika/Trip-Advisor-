@@ -1,16 +1,22 @@
 ## 🌐 Live Project
 Live URL: **[https://trip-advisor-1-93pw.onrender.com/](https://trip-advisor-1-93pw.onrender.com/)**
 
-Project Goal
-The aim of this project is to create an intelligent and user-friendly travel web application that uses AI (OpenAI’s GPT) to provide personalized travel recommendations based on the user’s input and preferences. Users can discover tailored destinations, book trips securely, and share their experiences through reviews and ratings — making travel planning smarter, easier, and more interactive.
+🌟 About the Project
 
-Featues
- 👉 This project solves the problem of time-consuming and generic travel planning by:
+This is an AI-powered travel planner that makes trip planning easy
+Built with OpenAI’s GPT, it listens to your voice or reads your text input to give you personalized travel recommendations.
+But it doesn’t stop there — track your search history, and share your travel experiences with others.
 
-Giving personalized travel suggestions based on user input (voice/text).
+🚀 Highlights
 
-Helping users track past searches so they don’t need to start over.
+🎯 Tailored Travel Suggestions – Get recommendations that perfectly match your preferences.
 
-Offering accurate and relevant results using semantic search (Apache Lucene).
+🎙 Voice & Text Input – Plan trips by talking or typing, whichever you prefer.
 
-Providing a space to share and explore reviews for better travel decisions.
+🕒 Search History – Easily revisit your past trip ideas.
+
+⭐ Reviews & Ratings – See what others loved, and share your own experiences.
+
+🔍 Semantic Search with Apache Lucene – Ensures accurate and relevant results for destinations and activities.
+
+.
