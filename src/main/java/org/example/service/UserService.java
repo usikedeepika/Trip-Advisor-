@@ -2,12 +2,9 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.example.dto.AuthResponse;
-import org.example.dto.LoginRequest;
-import org.example.dto.SignUpRequest;
-import org.example.dto.UserProfileRequest;
+import org.aspectj.apache.bcel.generic.RET;
+import org.example.dto.*;
 import org.example.model.entity.User;
-import org.example.model.entity.Users;
 import org.example.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,19 +27,19 @@ public class UserService {
         // Hash the password before saving
         String hashedPassword = passwordEncoder.encode(signUpRequest.getPassword());
 
-        Users user = Users.builder()
+        User user = User.builder()
                 .username(signUpRequest.getUsername())
                 .email(signUpRequest.getEmail())
                 .password(hashedPassword)
                 .firstName(signUpRequest.getFirstName())
                 .lastName(signUpRequest.getLastName())
                 .phoneNumber(signUpRequest.getPhoneNumber())
-                .enabled(true).build();
+                .build();
 
-        Users savedUser = userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         // Generate JWT token
-        String token = "";
+        String token = jwtHelper.generateToken(savedUser.getUsername());
 
         return new AuthResponse(
                 token,
@@ -63,7 +60,7 @@ public class UserService {
             throw new BadRequestException("Username or email is required");
         }
 
-        Users user = null;
+        User user = null;
 
         // Try to find user by username first, then by email
         if (loginRequest.getUserName() != null && !loginRequest.getUserName().trim().isEmpty()) {
@@ -96,7 +93,7 @@ public class UserService {
         );
     }
 
-    public Users getUserByUserName(UserProfileRequest userProfileRequest) {
+    public User getUserByUserName(UserProfileRequest userProfileRequest) {
         return userRepository.findByUsername(userProfileRequest.getUserName()).orElse(null);
     }
 
@@ -106,5 +103,24 @@ public class UserService {
 
     public Boolean existByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    public AuthResponse googleAuth(GoogleAuthRequest googleAuthRequest) throws BadRequestException {
+        if (googleAuthRequest.getUserData() == null || googleAuthRequest.getToken() == null) {
+            throw new BadRequestException();
+        }
+        String email = googleAuthRequest.getUserData().getEmail();
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user != null) {
+            String token = jwtHelper.generateToken(user.getEmail());
+            return new AuthResponse(token, "Bearer", user.getId(), user.getEmail(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getRole());
+        }
+        String userName=googleAuthRequest.getUserData().getEmail();
+        User newUser=User.builder().username(userName).email(email).password(passwordEncoder.encode("GOOGLE_AUTH"+System.currentTimeMillis()))
+                .firstName(googleAuthRequest.getUserData().getFirstName()).lastName(googleAuthRequest.getUserData().getLastName())
+                .phoneNumber(null).build();
+        User savedUser=userRepository.save(newUser);
+        String token=jwtHelper.generateToken(savedUser.getUsername());
+        return new AuthResponse(token, "Bearer", savedUser.getId(), savedUser.getEmail(), savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getRole());
     }
 }
